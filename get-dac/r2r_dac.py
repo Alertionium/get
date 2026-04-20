@@ -23,7 +23,7 @@ class R2R_DAC:
         for i, pin in enumerate(self.gpio_bits):
             GPIO.output(pin, (number>>i) & 1)
         if self.verbose:
-            print(f"Установлено число: {number}(0x{number:02X}")
+            print(f"Установлено число: {number}(0x{number:02X})")
 
     def set_voltage(self, voltage):
         if not(0.0 <=voltage <=self.dynamic_range):
