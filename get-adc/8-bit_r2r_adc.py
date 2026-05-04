@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import time
-
+import matplotlib.pyplot as plt
 class R2R_ADC:
     def __init__(self, dynamic_range,compare_time=0.01, verbose=False):
         self.dynamic_range=dynamic_range
@@ -48,19 +48,39 @@ class R2R_ADC:
     def get_sar_voltage(self):
         digital_value=self.successive_approximation_adc()
         return (digital_value/255.0)*self.dynamic_range
-    
+
+def plot_voltage_vs_time(time, voltage, max_voltage):
+    plt.figure(figsize=(10, 6))
+    plt.plot(time, voltage, '-b', linewidth=2)
+    plt.title("Зависимость напряжения от времени")
+    plt.xlabel("Время, с")
+    plt.ylabel("Напряжение, В")
+    plt.ylim(0, max_voltage*1.1)
+    plt.xlim(0, max(time) if time else 1)
+    plt.grid(True)
+    plt.show()
+
 if __name__=="__main__":
-    dynamic_range_volts=3.30
+    dynamic_range_volts=3.3
+
+    voltage_values =[]
+    time_values=[]
+    duration=3.0
 
     adc=None
 
     try:
         adc = R2R_ADC(dynamic_range_volts, compare_time=0.0001, verbose=False)
+        start_time=time.time()
 
-        while True:
+        while time.time()-start_time<duration:
             voltage = adc.get_sc_voltage()
-            print(f"{voltage:3f} В")
+            current_time=time.time() - start_time
+            voltage_values.append(voltage)
+            time_values.append(current_time)
+            print(f"t={current_time:.3f} с, U={voltage:.3f} В")
             time.sleep(0.01)
+        plot_voltage_vs_time(time_values, voltage_values, dynamic_range_volts)
     except KeyboardInterrupt:
         pass
     finally:
